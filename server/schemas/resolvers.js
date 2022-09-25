@@ -3,12 +3,12 @@ const { AuthenticationError } = require('apollo-server-express');
 
 const resolvers = {
     Query:{
-        // me: async({user, params}, res) =>{
-        //     if(context.user){
-        //         const userData = await User.findOne({_id:context.user._id})
-        //             .select('-_v -password')
-        //     }
-        // }
+        me: async({user, params}, res) =>{
+            if(context.user){
+                const userData = await User.findOne({_id:context.user._id})
+                    .select('-_v -password')
+            }
+        },
         users:async() =>{
             return User.find()
                 .select('-_v -password')
@@ -20,11 +20,11 @@ const resolvers = {
                 .populate('books');
         }
     },
-    Mutations:{
+    Mutation:{
         addUser:async(parent, args) =>{
             const user = await User.create(args);
             
-            return { user };
+            return user;
         },
         login: async(parents, { email, password }) =>{
             const user = await User.findOne({email});
