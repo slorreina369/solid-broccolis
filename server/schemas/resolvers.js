@@ -4,11 +4,16 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
     Query:{
-        me: async({user, params}, res) =>{
+        me: async(parents, args, context) =>{
             if(context.user){
                 const userData = await User.findOne({_id:context.user._id})
                     .select('-_v -password')
+                    .populate('book');
+
+                return userData;
             }
+
+            throw new AuthenticationError('Not logged in');
         },
         users:async() =>{
             return User.find()
@@ -29,6 +34,7 @@ const resolvers = {
             return { token, user };
         },
         login: async(parents, { email, password }) =>{
+            console.log('me me me')
             const user = await User.findOne({email});
             if(!user){
                 throw new AuthenticationError('Incorrect credentials');
