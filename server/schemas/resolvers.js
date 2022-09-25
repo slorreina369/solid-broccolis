@@ -38,7 +38,7 @@ const resolvers = {
                 throw new AuthenticationError('Incorrect credentials');
             }
 
-            return { user };
+            return user;
         }
 
     }
