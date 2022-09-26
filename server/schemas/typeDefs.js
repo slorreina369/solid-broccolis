@@ -13,14 +13,14 @@ const typeDefs = gql`
         me: User
         users:[User]
         user(username:String!):User
-        books(title:String!):[Book]
-        book(bookId:String!):Book
+        savedBooks:[Book]
     }
 
     type User {
         _id:ID!
         username: String
         email: String
+        password: String
         bookCount: Int
         savedBooks:[Book]
     }
