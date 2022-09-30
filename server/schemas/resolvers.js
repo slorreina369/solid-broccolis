@@ -7,8 +7,7 @@ const resolvers = {
         me: async(parents, args, context) =>{
             if(context.user){
                 const userData = await User.findOne({_id:context.user._id})
-                    .select('-_v -password')
-                    .populate('savedBooks');
+                    .select('-_v -password');
 
                 return userData;
             }
@@ -45,10 +44,15 @@ const resolvers = {
 
             return { token, user };
         },
-        savedBook: async(parent, { bookData }, context) =>{
+        savedBook: async(parent, args, context) =>{
             if(context.user){
+                console.log(args);
+                const bookData = args.bookData;
+                if(!bookData){
+                    throw new Error ('Book is null')
+                }
                 return User.findOneAndUpdate(
-                    {_id:context.user_id},
+                    {_id:context.user._id},
                     {$addToSet:{ savedBooks:bookData} },
                     { new:true }
                 );
@@ -57,9 +61,10 @@ const resolvers = {
         },
         removeBook: async(parent, { bookId }, context)=>{
             if(context.user){
+                console.log({user:context.user});
                 return User.findOneAndUpdate(
                     {_id:context.user._id},
-                    {$pull:{ savedBooks: bookId} },
+                    {$pull:{ savedBooks: {bookId}} },
                     {new:true}
                 );
             }

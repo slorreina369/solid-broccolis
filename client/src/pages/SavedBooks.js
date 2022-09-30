@@ -1,16 +1,14 @@
 import React from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
 import { useQuery, useMutation } from '@apollo/client';
-import { QUERY_ME, QUERY_USERS } from '../utils/queries';
+import { QUERY_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
-//import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
 
-console.log(QUERY_ME, QUERY_USERS);
 const SavedBooks = () => {
-  const {data, loading, error}= useQuery(QUERY_ME);
+  const {data, loading, error, refetch}= useQuery(QUERY_ME);
   const [deleteBook] = useMutation( REMOVE_BOOK);
 
   if(error) {
@@ -27,7 +25,6 @@ const SavedBooks = () => {
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = userData ? Object.keys(userData).length : undefined;
 
-  console.log(userDataLength);
   const token = Auth.loggedIn() ? Auth.getToken() : null;
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
@@ -37,12 +34,12 @@ const SavedBooks = () => {
     }
     
     try {
-      const response = await deleteBook(bookId, token);
+      const response = await deleteBook({variables:{bookId}}, token);
+      console.log(response);
 
-      const updatedUser = response;
-      userData(updatedUser);
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
+      refetch();
     } catch (err) {
       console.error(err);
     }
@@ -66,7 +63,7 @@ const SavedBooks = () => {
             : 'You have no saved books!'}
         </h2>
         <CardColumns>
-          {userData.savedBooks.map((book) => {
+          {userData.savedBooks.filter(book => !!book).map((book) => {
             return (
               <Card key={book.bookId} border='dark'>
                 {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
