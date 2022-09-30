@@ -15,7 +15,11 @@ const SignupForm = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setUserFormData({ ...userFormData, [name]: value });
+
+    setUserFormData({ 
+      ...userFormData, 
+      [name]: value, 
+    });
   };
 
   const handleFormSubmit = async (event) => {
@@ -32,21 +36,12 @@ const SignupForm = () => {
       const response = await addUser({
         variables:{...userFormData}
       });
-      console.log(response);
 
-      const { token, user } =  response;
-      console.log(user);
-      Auth.login(token);
+      Auth.login(response.data.addUser.token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
-
-    setUserFormData({
-      username: '',
-      email: '',
-      password: '',
-    });
   };
 
   return (
